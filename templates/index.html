@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechLingua Mentor - Ausbildung Trainee Support System</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://unpkg.com/compromise@14.8.0/builds/compromise.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Navigation bar -->
+      <nav class="navbar">
+        <div class="logo">
+          <i class="fas fa-graduation-cap"></i>
+          <h1>TechLingua Mentor</h1>
+        </div>
+        <div class="nav-buttons">
+          <div class="user-info" id="userInfo" style="display: none">
+            <i class="fas fa-user-circle"></i>
+            <span id="usernameDisplay"></span>
+            <div class="user-actions">
+              <button class="btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </button>
+            </div>
+          </div>
+
+          <div class="api-key-container">
+            <i class="fas fa-key"></i>
+            <input
+              type="text"
+              class="api-key-input"
+              id="apiKeyInput"
+              placeholder="Translation API Key"
+            />
+          </div>
+
+          <button class="btn btn-login" id="loginButton">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </button>
+          <button class="btn btn-register" id="registerButton">
+            <i class="fas fa-user-plus"></i> Register
+          </button>
+        </div>
+      </nav>
+
+      <!-- Main lecture panel -->
+      <div class="lecture-container">
+        <!-- Recording and text display section -->
+        <div class="lecture-player">
+          <div class="player-header">
+            <div class="lecture-title" id="lectureTitle">
+              Lecture Recording and Analysis System
+            </div>
+            <div class="lecture-info" id="lectureInfo">
+              <span
+                ><i class="far fa-clock"></i>
+                <span id="lectureDuration">00:00</span></span
+              >
+              <span
+                ><i class="fas fa-microphone"></i>
+                <span id="profName">Live Audio Recording</span></span
+              >
+            </div>
+          </div>
+
+          <div class="player-controls">
+            <button class="record-btn" id="recordBtn">
+              <i class="fas fa-microphone"></i>
+              <div class="recording-indicator"></div>
+            </button>
+
+            <div class="secondary-controls">
+              <button class="control-btn" title="Pause" id="pauseBtn">
+                <i class="fas fa-pause"></i>
+              </button>
+              <button class="control-btn" title="Stop" id="stopBtn">
+                <i class="fas fa-stop"></i>
+              </button>
+              <button class="control-btn" title="Download" id="downloadBtn">
+                <i class="fas fa-download"></i>
+              </button>
+              <button class="control-btn" title="Summary" id="summaryBtn">
+                <i class="fas fa-file-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="audio-controls">
+            <div class="control-group">
+              <label for="volumeControl">Volume Level:</label>
+              <input
+                type="range"
+                id="volumeControl"
+                min="0"
+                max="1"
+                step="0.1"
+                value="1"
+              />
+            </div>
+            <div class="control-group">
+              <label for="speedControl">Speed:</label>
+              <input
+                type="range"
+                id="speedControl"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value="1"
+              />
+            </div>
+          </div>
+
+          <div class="language-selector" id="languageSelector">
+            <div class="lang-option active" data-lang="de">German</div>
+            <div class="lang-option" data-lang="en">English</div>
+            <div class="lang-option" data-lang="fr">French</div>
+          </div>
+
+          <div class="audio-visualizer" id="audioVisualizer">
+            <!-- Will be filled dynamically -->
+          </div>
+
+          <div class="transcript-container" id="transcript">
+            <!-- Will be filled dynamically -->
+          </div>
+
+          <div class="summary-container" id="summaryContainer">
+            <h3 class="summary-title">
+              <i class="fas fa-file-contract"></i> Lecture Summary
+            </h3>
+            <div class="summary-content" id="summaryContent">
+              <!-- Will be filled dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Translation and interaction sidebar -->
+        <div class="sidebar">
+          <!-- Translation controls -->
+          <div class="sidebar-section">
+            <h2 class="sidebar-title">
+              <i class="fas fa-language"></i> Translation
+            </h2>
+            <div class="translation-controls">
+              <button class="lang-btn active" data-target="ar">Arabic</button>
+              <button class="lang-btn" data-target="en">English</button>
+            </div>
+
+            <!-- Manual text input -->
+            <div class="translation-input">
+              <input
+                type="text"
+                id="manualText"
+                placeholder="Enter text for translation..."
+              />
+              <button class="translate-btn" id="manualTranslateBtn">
+                Translate
+              </button>
+            </div>
+
+            <div class="transcript-container" id="translation">
+              <!-- Will be filled dynamically -->
+            </div>
+          </div>
+
+          <!-- Technical terms -->
+          <div class="sidebar-section">
+            <h2 class="sidebar-title">
+              <i class="fas fa-code"></i> Technical Terms
+            </h2>
+            <div class="term-list" id="termList">
+              <!-- Will be filled dynamically -->
+            </div>
+          </div>
+
+          <!-- Smart questions -->
+          <div class="sidebar-section">
+            <h2 class="sidebar-title">
+              <i class="fas fa-question-circle"></i> Suggested Questions
+            </h2>
+            <div class="question-generator">
+              <input
+                type="text"
+                class="question-input"
+                id="questionInput"
+                placeholder="Ask a question about the lecture..."
+              />
+              <button class="generate-btn" id="generateBtn">Generate</button>
+            </div>
+            <div class="question-list" id="questionList">
+              <!-- Will be filled dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session report -->
+      <div class="session-report">
+        <h2 class="report-title">
+          <i class="fas fa-chart-line"></i> Learning Session Report
+        </h2>
+
+        <div class="stats-container">
+          <div class="stat-card">
+            <i class="fas fa-clock fa-2x"></i>
+            <div class="stat-value" id="sessionDuration">00:00</div>
+            <div class="stat-label">Lecture Duration</div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-microphone-alt fa-2x"></i>
+            <div class="stat-value" id="wordsAnalyzed">0</div>
+            <div class="stat-label">Words Analyzed</div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-book fa-2x"></i>
+            <div class="stat-value" id="newTerms">0</div>
+            <div class="stat-label">New Technical Terms</div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-question-circle fa-2x"></i>
+            <div class="stat-value" id="questionsGenerated">0</div>
+            <div class="stat-label">Questions Generated</div>
+          </div>
+        </div>
+
+        <div class="recommendations">
+          <h3 class="rec-title">
+            <i class="fas fa-lightbulb"></i> Learning Recommendations
+          </h3>
+          <div class="rec-list" id="learningRecs">
+            <!-- Will be filled dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>© 2025 TechLingua Mentor - IT Ausbildung Trainee Support System</p>
+        <p>
+          This system was developed to help foreign trainees overcome language
+          barriers in technical specialties
+        </p>
+      </div>
+    </div>
+
+    <!-- Translation popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="translation-popup" id="translationPopup">
+      <div class="translation-header">
+        <h2>Text Translation</h2>
+        <button class="close-btn" id="closePopup">&times;</button>
+      </div>
+      <div class="translation-content">
+        <div class="translation-box">
+          <h3>Original Text</h3>
+          <div id="originalText"></div>
+        </div>
+        <div class="translation-box">
+          <h3>Translation</h3>
+          <div id="translatedText"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login window -->
+    <div
+      id="loginModal"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+      "
+    >
+      <div
+        class="login-form"
+        style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 90%;
+          max-width: 400px;
+        "
+      >
+        <h2 style="text-align: center; margin-bottom: 20px; color: #64ffda">
+          Login
+        </h2>
+        <div class="form-group">
+          <input
+            type="text"
+            class="form-input"
+            id="loginUsername"
+            placeholder="Username"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            class="form-input"
+            id="loginPassword"
+            placeholder="Password"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <button class="form-btn" id="submitLogin">Login</button>
+          <button
+            class="form-btn"
+            style="margin-top: 10px; background: #8892b0"
+            id="cancelLogin"
+          >
+            Cancel
+          </button>
+        </div>
+        <div
+          id="loginError"
+          style="
+            color: #ff4b2b;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+          "
+        ></div>
+      </div>
+    </div>
+
+    <!-- Registration window -->
+    <div
+      id="registerModal"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+      "
+    >
+      <div
+        class="register-form"
+        style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 90%;
+          max-width: 400px;
+        "
+      >
+        <h2 style="text-align: center; margin-bottom: 20px; color: #64ffda">
+          Create Account
+        </h2>
+        <div class="form-group">
+          <input
+            type="text"
+            class="form-input"
+            id="registerUsername"
+            placeholder="Username"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            class="form-input"
+            id="registerPassword"
+            placeholder="Password"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <button class="form-btn" id="submitRegister">Create Account</button>
+          <button
+            class="form-btn"
+            style="margin-top: 10px; background: #8892b0"
+            id="cancelRegister"
+          >
+            Cancel
+          </button>
+        </div>
+        <div
+          id="registerError"
+          style="
+            color: #ff4b2b;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+          "
+        ></div>
+      </div>
+    </div>
+
+
+    <div
+      id="notification"
+      style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px;
+        background: rgba(10, 25, 47, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
+        display: none;
+        max-width: 400px;
+      "
+    >
+      <div id="notificationContent" style="display: flex; align-items: center">
+        <i
+          id="notificationIcon"
+          class="fas fa-info-circle"
+          style="margin-left: 10px; font-size: 1.5rem"
+        ></i>
+        <span id="notificationMessage"></span>
+      </div>
+    </div>
+
+    <script>
+      // User state definition from server
+      const currentUser = {% if current_user %}
+          {
+              id: {{ current_user.id }},
+              username: "{{ current_user.username }}"
+          }
+      {% else %}
+          null
+      {% endif %};
+    </script>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
